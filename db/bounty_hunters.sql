@@ -1,4 +1,4 @@
-DROP TABLE bounties;
+DROP TABLE IF EXISTS bounties;
 
 CREATE TABLE bounties(
   id SERIAL PRIMARY KEY,

@@ -1,6 +1,6 @@
 require("pg")
 class SpaceCowboy
-  attr_reader :id, :name, :species, :bounty_value, :homeworld
+  attr_reader :id
   attr_accessor :name, :species, :bounty_value, :homeworld
 
   def initialize(new_hash)
@@ -18,7 +18,7 @@ class SpaceCowboy
     db.prepare("save", sql)
     result = db.exec_prepared("save", values)
     db.close()
-    @id = result[0]["id"].to_i
+    @id = result[0]["id"].to_i # result gets array back from database, first result is the a hash with key id and number of value id.
   end
 
   def self.all()
@@ -53,19 +53,21 @@ class SpaceCowboy
     sql = "SELECT * FROM bounties WHERE name = $1"
     db.prepare("find_by_name", sql)
     dollar_signs = [name]
-    result = db.exec_prepared("find_by_name", dollar_signs)
+     result = db.exec_prepared("find_by_name", dollar_signs)
     db.close()
-    return result[0]
+
+    return result.map {|bounty_hash| SpaceCowboy.new(bounty_hash)}
   end
 
   def self.find_by_id(id)
     db = PG.connect({dbname: "space_cowboys", host: "localhost"})
-    sql = "SELECT * FROM bounties WHERE name = $1"
-    db.prepare("find", sql)
+    sql = "SELECT * FROM bounties WHERE id = $1"
+    db.prepare("find_by_id", sql)
     dollar_signs = [id]
-    result = db.exec_prepared("find", dollar_signs)
+    result = db.exec_prepared("find_by_id", dollar_signs)
     db.close()
-    return result.first
+    bounty_hash = result[0]
+    return SpaceCowboy.new(bounty_hash)
   end
 
 
